@@ -113,3 +113,16 @@ export const reservations = [];
 export function normalizeText(value) {
   return String(value || "").toLowerCase().trim();
 }
+
+/** Đường dẫn công khai tới món trên site (trang thực đơn + anchor theo slug). */
+export function getMenuItemPath(slug) {
+  return `/thuc-don#${slug}`;
+}
+
+/**
+ * URL đầy đủ cho API/cards (truyền origin từ request, ví dụ https://....vercel.app).
+ */
+export function getMenuItemUrl(origin, slug) {
+  const base = String(origin || "").replace(/\/$/, "");
+  return `${base}${getMenuItemPath(slug)}`;
+}

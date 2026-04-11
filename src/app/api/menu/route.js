@@ -1,7 +1,8 @@
-import { MENU_ITEMS, normalizeText } from "@/lib/restaurant-store";
+import { MENU_ITEMS, normalizeText, getMenuItemUrl } from "@/lib/restaurant-store";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
+  const origin = new URL(request.url).origin;
   const category = normalizeText(searchParams.get("category"));
   const search = normalizeText(searchParams.get("search"));
   const maxPrice = Number(searchParams.get("maxPrice") || 0);
@@ -26,5 +27,10 @@ export async function GET(request) {
     list = list.filter((item) => Number(item.price) <= maxPrice);
   }
 
-  return Response.json(list);
+  const withUrls = list.map((item) => ({
+    ...item,
+    url: getMenuItemUrl(origin, item.slug),
+  }));
+
+  return Response.json(withUrls);
 }

@@ -40,7 +40,7 @@ export default function MenuPage() {
               <h2 className="section-title">{cat}</h2>
               <ul className="menu-list">
                 {items.map((item) => (
-                  <li key={item.id} className="menu-row">
+                  <li key={item.id} id={item.slug} className="menu-row">
                     <div className="menu-row-img">
                       <img src={item.imageUrl} alt={item.name} />
                     </div>
