@@ -108,10 +108,24 @@ export const DEFAULT_TIME_SLOTS = [
   "20:00",
 ];
 
+/**
+ * Mock DB: danh sách đặt bàn trong RAM (cùng process).
+ * - `npm run dev`: giữ đến khi restart server.
+ * - Production serverless: mỗi instance / cold start = mảng rỗng; không thay thế DB thật.
+ */
 export const reservations = [];
 
 export function normalizeText(value) {
   return String(value || "").toLowerCase().trim();
+}
+
+/** Chuẩn hoá SĐT để so khớp (chỉ giữ chữ số, bỏ khoảng trắng, +84…). */
+export function normalizePhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.startsWith("84") && digits.length >= 10) {
+    return `0${digits.slice(2)}`;
+  }
+  return digits;
 }
 
 /** Đường dẫn công khai tới món trên site (trang thực đơn + anchor theo slug). */

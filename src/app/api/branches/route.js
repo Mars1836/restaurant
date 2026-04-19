@@ -1,5 +1,6 @@
-import { BRANCHES } from "@/lib/restaurant-store";
+import { getBranchesList } from "@/lib/catalog-repo";
 
 export async function GET() {
-  return Response.json(BRANCHES);
+  const branches = await getBranchesList();
+  return Response.json(branches);
 }

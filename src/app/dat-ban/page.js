@@ -1,11 +1,13 @@
-import { BRANCHES } from "@/lib/restaurant-store";
+import { getBranchesList } from "@/lib/catalog-repo";
 import ReservationForm from "./ReservationForm";
 
 export const metadata = {
   title: "Đặt bàn",
 };
 
-export default function ReservePage() {
+export default async function ReservePage() {
+  const branches = await getBranchesList();
+
   return (
     <div className="page-shell">
       <div className="page-hero">
@@ -19,7 +21,7 @@ export default function ReservePage() {
       </div>
 
       <div className="container section-block">
-        <ReservationForm branches={BRANCHES} />
+        <ReservationForm branches={branches} />
         <p className="muted form-footnote">
           Cần hỗ trợ gấp? Gọi{" "}
           <a href="tel:19006868">1900 6868</a> trong giờ làm việc.

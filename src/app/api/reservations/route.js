@@ -1,4 +1,4 @@
-import { BRANCHES, reservations } from "@/lib/restaurant-store";
+import { createReservation } from "@/lib/reservations-repo";
 
 export async function POST(request) {
   const body = await request.json();
@@ -14,40 +14,22 @@ export async function POST(request) {
     );
   }
 
-  const branch = BRANCHES.find((b) => b.id === branchId);
-  if (!branch) {
-    return Response.json({ error: "Chi nhanh khong ton tai." }, { status: 404 });
-  }
+  const result = await createReservation({
+    branchId,
+    date,
+    time,
+    partySize,
+    customerName,
+    phone,
+    note,
+  });
 
-  const conflict = reservations.some(
-    (r) =>
-      r.branchId === branchId &&
-      r.date === date &&
-      r.time === time &&
-      r.status === "confirmed",
-  );
-
-  if (conflict) {
+  if (!result.ok) {
     return Response.json(
-      { error: "Khung gio nay vua het cho. Vui long chon gio khac." },
-      { status: 409 },
+      { error: result.error },
+      { status: result.status },
     );
   }
 
-  const reservation = {
-    id: `RES-${Date.now()}`,
-    branchId,
-    branchName: branch.name,
-    date,
-    time,
-    partySize: Number(partySize),
-    customerName,
-    phone,
-    note: note || "",
-    status: "confirmed",
-    createdAt: new Date().toISOString(),
-  };
-
-  reservations.push(reservation);
-  return Response.json(reservation, { status: 201 });
+  return Response.json(result.reservation, { status: 201 });
 }

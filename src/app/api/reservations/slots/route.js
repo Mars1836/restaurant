@@ -1,9 +1,6 @@
-import {
-  BRANCHES,
-  DEFAULT_TIME_SLOTS,
-  normalizeText,
-  reservations,
-} from "@/lib/restaurant-store";
+import { DEFAULT_TIME_SLOTS, normalizeText } from "@/lib/restaurant-store";
+import { findBranchById } from "@/lib/catalog-repo";
+import { getBookedSlotTimes } from "@/lib/reservations-repo";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -18,7 +15,7 @@ export async function GET(request) {
     );
   }
 
-  const branch = BRANCHES.find((b) => normalizeText(b.id) === branchId);
+  const branch = await findBranchById(branchId);
   if (!branch) {
     return Response.json({ error: "Chi nhanh khong ton tai." }, { status: 404 });
   }
@@ -28,14 +25,7 @@ export async function GET(request) {
     slots = slots.filter((s) => !["12:00", "19:00"].includes(s));
   }
 
-  const bookedSlots = reservations
-    .filter(
-      (r) =>
-        normalizeText(r.branchId) === branchId &&
-        r.date === date &&
-        r.status === "confirmed",
-    )
-    .map((r) => r.time);
+  const bookedSlots = await getBookedSlotTimes(branchId, date);
 
   slots = slots.filter((slot) => !bookedSlots.includes(slot));
 

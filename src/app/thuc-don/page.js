@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MENU_ITEMS } from "@/lib/restaurant-store";
+import { listAllMenuItems } from "@/lib/catalog-repo";
 
 export const metadata = {
   title: "Thực đơn",
@@ -9,7 +9,9 @@ function formatPrice(vnd) {
   return Number(vnd || 0).toLocaleString("vi-VN") + " đ";
 }
 
-export default function MenuPage() {
+export default async function MenuPage() {
+  const MENU_ITEMS = await listAllMenuItems();
+
   const byCategory = MENU_ITEMS.reduce((acc, item) => {
     const key = item.categoryLabel || item.category;
     if (!acc[key]) acc[key] = [];
