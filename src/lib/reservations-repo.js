@@ -180,3 +180,64 @@ export async function findReservationsByPhoneNormalized(needle) {
       createdAt: r.createdAt,
     }));
 }
+
+/**
+ * Danh sách đặt bàn cho trang admin (mới nhất trước).
+ * @param {{ limit?: number, dateFilter?: string, branchId?: string }} opts
+ */
+export async function listReservationsForAdmin(opts = {}) {
+  const limit = Math.min(Math.max(Number(opts.limit) || 200, 1), 500);
+  const dateFilter = opts.dateFilter
+    ? String(opts.dateFilter).slice(0, 10)
+    : null;
+  const branchId = opts.branchId
+    ? normalizeText(opts.branchId)
+    : null;
+
+  if (isPostgresEnabled()) {
+    const pool = getPool();
+    const params = [];
+    const where = [];
+    let i = 1;
+    if (dateFilter) {
+      where.push(`date = $${i++}::date`);
+      params.push(dateFilter);
+    }
+    if (branchId) {
+      where.push(`branch_id = $${i++}`);
+      params.push(branchId);
+    }
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+    params.push(limit);
+    const { rows } = await pool.query(
+      `SELECT * FROM reservations ${whereSql} ORDER BY created_at DESC LIMIT $${i}`,
+      params,
+    );
+    return rows.map(rowToApi);
+  }
+
+  let list = reservations.map((r) => ({
+    id: r.id,
+    branchId: r.branchId,
+    branchName: r.branchName,
+    date: r.date,
+    time: r.time,
+    partySize: r.partySize,
+    customerName: r.customerName,
+    phone: r.phone,
+    note: r.note || "",
+    status: r.status,
+    createdAt: r.createdAt,
+  }));
+  if (dateFilter) {
+    list = list.filter((r) => r.date === dateFilter);
+  }
+  if (branchId) {
+    list = list.filter((r) => normalizeText(r.branchId) === branchId);
+  }
+  list.sort(
+    (a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+  return list.slice(0, limit);
+}
