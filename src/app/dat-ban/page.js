@@ -1,6 +1,9 @@
 import { getBranchesList } from "@/lib/catalog-repo";
 import ReservationForm from "./ReservationForm";
 
+/** Không prerender lúc build (tránh gọi Postgres khi env có POSTGRES_URL → lỗi SSL / cert). */
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Đặt bàn",
 };

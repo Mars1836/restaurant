@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { listAllMenuItems } from "@/lib/catalog-repo";
 
+/** Không prerender lúc build khi có DB (SSL / cert). */
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Thực đơn",
 };
